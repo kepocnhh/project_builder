@@ -351,7 +351,7 @@ fi
 
 #
 
-mkdir -p 'android'
+mkdir -p "android/src/main/kotlin/${PROJECT_NAMESPACE//.///}"
 
 #
 
@@ -446,6 +446,88 @@ androidComponents.onVariants { variant ->
 dependencies {
     implementation(compose.foundation)
     implementation(\"androidx.activity:activity-compose:1.12.4\")
+}
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+ISSUER='android/src/main/AndroidManifest.xml'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">
+    <application
+        android:label=\"${PROJECT_NAME}\"
+        android:name=\".App\">
+        <activity android:name=\".MainActivity\"
+            android:screenOrientation=\"portrait\"
+            android:exported=\"true\">
+            <intent-filter>
+                <action android:name=\"android.intent.action.MAIN\"/>
+                <category android:name=\"android.intent.category.LAUNCHER\"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+ISSUER="android/src/main/kotlin/${PROJECT_NAMESPACE//.///}/App.kt"
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+package ${PROJECT_NAMESPACE}
+
+import android.app.Application
+
+internal class App : Application() {
+    override fun onCreate() {
+        // todo
+    }
+}
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+ISSUER="android/src/main/kotlin/${PROJECT_NAMESPACE//.///}/MainActivity.kt"
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+package ${PROJECT_NAMESPACE}
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+
+internal class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // todo
+    }
 }
 " > "${ISSUER}"
 
