@@ -176,4 +176,164 @@ elif [[ ! -s "${ISSUER}" ]]; then
  echo "File \"${ISSUER}\" is empty!"; exit 1
 fi
 
+#
+
+mkdir -p 'desktop'
+
+#
+
+ISSUER='desktop/.gitignore'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+/*
+!/src
+!.gitignore
+!build.gradle.kts
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+ISSUER='desktop/gradle.properties'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+buildType=debug
+specifics=real
+platform=macos
+arch=arm64
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+echo 'Enter project namespace:'
+read -r PROJECT_NAMESPACE
+
+#
+
+ISSUER="desktop/build.gradle.kts"
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+plugins {
+    id(\"org.jetbrains.kotlin.jvm\")
+    id(\"org.jetbrains.compose\") version Version.compose
+    id(\"org.jetbrains.kotlin.plugin.compose\") version Version.kotlin
+}
+
+val buildType by properties
+val specifics by properties
+val platform by properties
+val arch by properties
+
+sourceSets {
+    getByName(\"main\") {
+        kotlin.srcDirs(\"../shared/src/\$name/kotlin\")
+        setOf(buildType, specifics).forEach { name ->
+            kotlin.srcDirs(\"src/\$name/kotlin\")
+            kotlin.srcDirs(\"../shared/src/\$name/kotlin\")
+        }
+    }
+}
+
+tasks.getByName<JavaCompile>(\"compileJava\") {
+    targetCompatibility = Version.jvmTarget
+}
+
+tasks.getByName<KotlinCompile>(\"compileKotlin\") {
+    compilerOptions.jvmTarget = JvmTarget.fromTarget(Version.jvmTarget)
+}
+
+compose.desktop {
+    application {
+        mainClass = \"${PROJECT_NAMESPACE}.AppKt\"
+    }
+}
+
+dependencies {
+    when (val entry = Pair(platform, arch)) {
+        \"macos\" to \"arm64\" -> {
+            implementation(compose.desktop.macos_arm64)
+        }
+        else -> {
+            val (platform, arch) = entry
+            error(\"Platform \\\"\$platform(\$arch)\\\" is not supported!\")
+        }
+    }
+}
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+mkdir -p "desktop/src/main/kotlin/${PROJECT_NAMESPACE//.///}"
+
+#
+
+ISSUER="desktop/src/main/kotlin/${PROJECT_NAMESPACE//.///}/App.kt"
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+package ${PROJECT_NAMESPACE}
+
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+
+internal object App {
+    init {
+        // todo
+    }
+}
+
+fun main() {
+    application {
+        Window(onCloseRequest = ::exitApplication, title = \"${PROJECT_NAME}\") {
+            // todo
+        }
+    }
+}
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
 echo 'Not implemented!'; exit 1 # todo
