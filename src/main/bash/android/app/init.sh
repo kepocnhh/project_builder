@@ -156,7 +156,6 @@ repositories {
 plugins {
     id(\"com.android.application\")
     id(\"kotlin-android\")
-    id(\"org.jetbrains.kotlin.plugin.compose\") version \"${VERSION_KOTLIN}\"
 }
 
 android {
@@ -173,8 +172,8 @@ android {
 
     buildTypes {
         getByName(\"debug\") {
-            applicationIdSuffix = \".$name\"
-            versionNameSuffix = \"-$name\"
+            applicationIdSuffix = \".\$name\"
+            versionNameSuffix = \"-\$name\"
             isMinifyEnabled = false
             isShrinkResources = false
         }
@@ -196,6 +195,96 @@ androidComponents.onVariants { variant ->
         tasks.getByName<KotlinCompile>(\"compile\${variant.name.replaceFirstChar(Character::toUpperCase)}Kotlin\") {
             compilerOptions.jvmTarget = JvmTarget.fromTarget(\"17\")
         }
+    }
+}
+
+dependencies {
+    implementation(\"androidx.activity:activity:1.12.4\")
+}
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+mkdir -p "app/src/main/kotlin/${PROJECT_NAMESPACE//.///}"
+
+#
+
+ISSUER='app/src/main/AndroidManifest.xml'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">
+    <application
+        android:label=\"${PROJECT_NAME}\"
+        android:name=\".App\">
+        <activity android:name=\".MainActivity\"
+            android:screenOrientation=\"portrait\"
+            android:exported=\"true\">
+            <intent-filter>
+                <action android:name=\"android.intent.action.MAIN\"/>
+                <category android:name=\"android.intent.category.LAUNCHER\"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+ISSUER="app/src/main/kotlin/${PROJECT_NAMESPACE//.///}/App.kt"
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+package ${PROJECT_NAMESPACE}
+
+import android.app.Application
+
+internal class App : Application() {
+    override fun onCreate() {
+        // todo
+    }
+}
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+ISSUER="app/src/main/kotlin/${PROJECT_NAMESPACE//.///}/MainActivity.kt"
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+package ${PROJECT_NAMESPACE}
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+
+internal class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // todo
     }
 }
 " > "${ISSUER}"
