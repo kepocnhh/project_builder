@@ -83,4 +83,56 @@ elif [[ ! -s "${ISSUER}" ]]; then
  echo "File \"${ISSUER}\" is empty!"; exit 1
 fi
 
-echo 'Not implemented!'; exit 1 # todo
+#
+
+mkdir lib
+
+#
+
+ISSUER='lib/.gitignore'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+/*
+!/src
+!.gitignore
+!build.gradle.kts
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+echo 'Enter project namespace:'
+read -r PROJECT_NAMESPACE
+
+#
+
+ISSUER='lib/build.gradle.kts'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+repositories.mavenCentral()
+
+plugins {
+    id(\"org.jetbrains.kotlin.jvm\")
+}
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+mkdir -p "lib/src/main/kotlin/${PROJECT_NAMESPACE//.///}"
