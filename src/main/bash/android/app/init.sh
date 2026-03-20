@@ -1,0 +1,111 @@
+#!/usr/local/bin/bash
+
+VERSION_KOTLIN='2.2.21'
+VERSION_AGP='8.13.2'
+
+#
+
+echo 'Enter project name:'
+read -r PROJECT_NAME
+
+#
+
+mkdir '.excluded'
+mkdir '.excluded/json'
+mkdir '.excluded/md'
+mkdir '.excluded/sh'
+mkdir '.excluded/txt'
+
+#
+
+ISSUER='.gitignore'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+/*
+!/app
+!.gitignore
+!build.gradle.kts
+!gradle.properties
+!settings.gradle.kts
+!README.md
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+ISSUER='settings.gradle.kts'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+rootProject.name = \"$PROJECT_NAME\"
+
+include(\"app\")
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+ISSUER='build.gradle.kts'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath(\"com.android.tools.build:gradle:${VERSION_AGP}\")
+        classpath(\"org.jetbrains.kotlin:kotlin-gradle-plugin:${VERSION_KOTLIN}\")
+    }
+}
+
+tasks.register<Delete>(\"clean\") {
+    delete = setOf(\"build\")
+}
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+ISSUER='gradle.properties'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+android.useAndroidX=true
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+echo 'Not implemented!'; exit 1 # todo
