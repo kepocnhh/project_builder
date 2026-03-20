@@ -13,6 +13,9 @@ VERSION_GRADLEX='0.1.0'
 echo 'Enter project name:'
 read -r PROJECT_NAME
 
+echo 'Enter project namespace:'
+read -r PROJECT_NAMESPACE
+
 #
 
 mkdir '.excluded'
@@ -178,6 +181,23 @@ fi
 
 #
 
+ISSUER='gradle.properties'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+android.useAndroidX=true
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
 mkdir -p 'desktop'
 
 #
@@ -219,11 +239,6 @@ if [[ ! -f "${ISSUER}" ]]; then
 elif [[ ! -s "${ISSUER}" ]]; then
  echo "File \"${ISSUER}\" is empty!"; exit 1
 fi
-
-#
-
-echo 'Enter project namespace:'
-read -r PROJECT_NAMESPACE
 
 #
 
@@ -325,6 +340,112 @@ fun main() {
             // todo
         }
     }
+}
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+mkdir -p 'android'
+
+#
+
+ISSUER='android/.gitignore'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+/*
+!/src
+!.gitignore
+!build.gradle.kts
+" > "${ISSUER}"
+
+if [[ ! -f "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!"; exit 1
+elif [[ ! -s "${ISSUER}" ]]; then
+ echo "File \"${ISSUER}\" is empty!"; exit 1
+fi
+
+#
+
+ISSUER='android/build.gradle.kts'
+
+if test -f "${ISSUER}"; then
+ echo "File \"${ISSUER}\" exists!"; exit 1; fi
+
+echo -n "\
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+plugins {
+    id(\"com.android.application\")
+    id(\"kotlin-android\")
+    id(\"org.jetbrains.compose\") version Version.compose
+    id(\"org.jetbrains.kotlin.plugin.compose\") version Version.kotlin
+}
+
+android {
+    namespace = \"${PROJECT_NAMESPACE}\"
+    compileSdk = Version.Android.compileSdk
+
+    defaultConfig {
+        applicationId = namespace
+        minSdk = Version.Android.minSdk
+        targetSdk = Version.Android.targetSdk
+        versionCode = 1
+        versionName = \"0.0.1\"
+    }
+
+    buildTypes {
+        getByName(\"debug\") {
+            sourceSets.getByName(name) {
+                kotlin.srcDirs(\"../shared/src/\$name/kotlin\")
+            }
+            applicationIdSuffix = \".\$name\"
+            versionNameSuffix = \"-\$name\"
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+    }
+
+    sourceSets.getByName(\"main\") {
+        kotlin.srcDirs(\"../shared/src/\$name/kotlin\")
+    }
+
+    buildFeatures.buildConfig = true
+
+    compileOptions {
+        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+androidComponents.onVariants { variant ->
+    val output = variant.outputs.single()
+    check(output is com.android.build.api.variant.impl.VariantOutputImpl)
+    output.outputFileName = \"\${rootProject.name}-\${output.versionName.get()}-\${output.versionCode.get()}.apk\"
+    afterEvaluate {
+        tasks.getByName<KotlinCompile>(\"compile\${variant.name.replaceFirstChar(Character::toUpperCase)}Kotlin\") {
+            compilerOptions.jvmTarget = JvmTarget.fromTarget(Version.jvmTarget)
+        }
+    }
+}
+
+dependencies {
+    implementation(compose.foundation)
+    implementation(\"androidx.activity:activity-compose:1.12.4\")
 }
 " > "${ISSUER}"
 
